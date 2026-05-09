@@ -48,19 +48,26 @@ export default function App() {
     }
   }, [registerSurface])
 
-  const handleDrawSubmit = useCallback(
-    (imageData: string, description: string) => {
-      setDrawingOpen(false)
+  const handleDrawToolCall = useCallback(
+    (toolName: string, params: Record<string, unknown>) => {
+      // Post a message to the main speech handler or trigger directly
+      // The drawing interpretation will be fed back to Gemini through
+      // a fake user message containing the tool call + interpretation
       addEvent({
         kind: 'note',
-        title: 'Drawing submitted',
-        detail: description || 'User drew something',
-        data: { imageData, description },
+        title: 'Drawing triggered search',
+        detail: `Tool: ${toolName}`,
       })
-      // TODO: Send to Gemini Vision API to interpret the drawing
-      // Then call render_surface or search based on the interpretation
+
+      // Dispatch the tool call through postMessage if there's a worker/processor
+      // OR emit it to the live session to make the tool call
+      window.dispatchEvent(
+        new CustomEvent('drawing:tool-call', {
+          detail: { toolName, params },
+        }),
+      )
     },
-    [setDrawingOpen, addEvent],
+    [addEvent],
   )
 
   return (
@@ -97,7 +104,7 @@ export default function App() {
       <ResultGallery />
       <SurfacePanel />
       <Controls />
-      {drawingOpen && <DrawPanel onClose={() => setDrawingOpen(false)} onSubmit={handleDrawSubmit} />}
+      {drawingOpen && <DrawPanel onClose={() => setDrawingOpen(false)} onToolCall={handleDrawToolCall} />}
     </>
   )
 }
