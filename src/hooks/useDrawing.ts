@@ -13,7 +13,7 @@ export interface DrawingStroke {
 }
 
 export interface UseDrawingReturn {
-  canvasRef: React.RefObject<HTMLCanvasElement>
+  canvasRef: React.RefObject<HTMLCanvasElement | null>
   startStroke: (e: React.PointerEvent<HTMLCanvasElement>) => void
   drawStroke: (e: React.PointerEvent<HTMLCanvasElement>) => void
   endStroke: () => void

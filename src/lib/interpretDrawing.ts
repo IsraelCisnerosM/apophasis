@@ -1,15 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-
-if (!GEMINI_API_KEY) {
-  throw new Error('VITE_GEMINI_API_KEY is required for drawing interpretation')
-}
-
-const client = new GoogleGenAI({
-  apiKey: GEMINI_API_KEY,
-})
-
 export interface DrawingInterpretation {
   description: string // Detailed description of what was drawn
   searchType: 'music' | 'video' | 'book' | 'product' | 'place' | 'generic' // Type of search to perform
@@ -25,7 +15,22 @@ export async function interpretDrawing(
   imageBase64: string,
   userDescription?: string,
 ): Promise<DrawingInterpretation> {
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY
+
+  if (!GEMINI_API_KEY) {
+    console.error('VITE_GEMINI_API_KEY is not set')
+    return {
+      description: userDescription || 'Drawing submitted',
+      searchType: 'generic',
+      searchQuery: userDescription || 'drawing',
+    }
+  }
+
   try {
+    const client = new GoogleGenAI({
+      apiKey: GEMINI_API_KEY,
+    })
+
     const prompt = userDescription
       ? `The user drew something and wrote: "${userDescription}". Based on the drawing and their note, interpret what they're trying to find or create. Respond in JSON format with: { "description": "detailed description", "searchType": "music|video|book|product|place|generic", "searchQuery": "search query", "additionalContext": {...} }`
       : `Interpret this drawing. What is the user trying to represent or find? Respond in JSON format with: { "description": "detailed description of the drawing", "searchType": "music|video|book|product|place|generic", "searchQuery": "search query", "additionalContext": {...} }`
@@ -50,7 +55,7 @@ export async function interpretDrawing(
       ],
     })
 
-    const textContent = response.response.content?.parts?.[0]
+    const textContent = response.candidates?.[0]?.content?.parts?.[0]
     if (!textContent || !('text' in textContent)) {
       throw new Error('No text response from Gemini Vision')
     }

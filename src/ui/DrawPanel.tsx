@@ -5,7 +5,6 @@ import { Slider } from '@/components/ui/slider'
 import { interpretDrawing, buildToolCallFromInterpretation } from '@/lib/interpretDrawing'
 import { useDrawing } from '@/hooks/useDrawing'
 import { useStore } from '@/store'
-import { useT } from '@/hooks/useT'
 
 interface DrawPanelProps {
   onClose: () => void
@@ -22,7 +21,6 @@ const PRESET_COLORS = [
 ]
 
 export function DrawPanel({ onClose, onToolCall }: DrawPanelProps) {
-  const { t } = useT()
   const { canvasRef, startStroke, drawStroke, endStroke, clearCanvas, getImageData, setColor, setWidth } = useDrawing(
     800,
     600,
