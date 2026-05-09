@@ -7,6 +7,8 @@ import * as THREE from 'three'
 import { dispatchDemoSurface } from '@/a2ui/demoSurface'
 import { Backdrop } from '@/scene/Backdrop'
 import { Blob } from '@/scene/Blob'
+import { CanvasDrawer } from '@/components/CanvasDrawer'
+import { CopilotKit } from '@copilotkit/react-core'
 import { useStore } from '@/store'
 import { Controls } from '@/ui/Controls'
 import { ConversationSidebar } from '@/ui/ConversationSidebar'
@@ -18,6 +20,8 @@ export default function App() {
   const lite = useStore((s) => s.lite)
   const toggleLite = useStore((s) => s.toggleLite)
   const registerSurface = useStore((s) => s.registerSurface)
+  const showCanvasDrawer = useStore((s) => s.showCanvasDrawer)
+  const setShowCanvasDrawer = useStore((s) => s.setShowCanvasDrawer)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +49,7 @@ export default function App() {
   }, [registerSurface])
 
   return (
-    <>
+    <CopilotKit runtimeUrl="/api/copilotkit">
       <Canvas
         dpr={lite ? 1 : [1, 2]}
         camera={{ position: [0, 0, 4.2], fov: 45 }}
@@ -78,6 +82,58 @@ export default function App() {
       <ResultGallery />
       <SurfacePanel />
       <Controls />
+      {showCanvasDrawer && (
+        <CanvasDrawer
+          onClose={() => setShowCanvasDrawer(false)}
+          onInterpret={handleInterpret}
+        />
+      )}
     </>
   )
+
+  async function handleInterpret(imageData: string) {
+    try {
+      // Usar Gemini para interpretar la imagen
+      const { GoogleGenAI } = await import('@google/genai')
+      const genAI = new GoogleGenAI(import.meta.env.VITE_GEMINI_API_KEY || '')
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      
+      const result = await model.generateContent([
+        'Describe detalladamente lo que ves en esta imagen dibujada a mano. Proporciona una descripción clara y específica para que se pueda generar una interfaz de usuario basada en ella.',
+        {
+          inlineData: {
+            mimeType: 'image/png',
+            data: imageData.split(',')[1]
+          }
+        }
+      ])
+      
+      const description = result.response.text()
+      console.log('Descripción del dibujo:', description)
+      
+      // Usar Gemini para generar componentes A2UI basados en la descripción
+      const uiResult = await model.generateContent([
+        `Basado en esta descripción de un dibujo: "${description}", genera un objeto JSON con componentes A2UI v0.9 para crear una interfaz de usuario que represente o permita interactuar con lo dibujado. Usa componentes como Column, Row, Card, Text, TextField, ChoicePicker, Slider, CheckBox, Button. El componente raíz debe tener id "root". Devuelve solo el JSON válido.`
+      ])
+      
+      const uiJson = uiResult.response.text()
+      console.log('UI generada:', uiJson)
+      
+      try {
+        const components = JSON.parse(uiJson)
+        // Usar A2UI para renderizar
+        // Aquí necesitarías integrar con el processor de A2UI
+        // Por simplicidad, mostrar un surface básico
+        const surfaceId = `drawing_${Date.now()}`
+        const id = dispatchDemoSurface('basic')
+        registerSurface(id)
+      } catch (e) {
+        console.error('Error parseando UI:', e)
+      }
+      
+    } catch (error) {
+      console.error('Error interpretando dibujo:', error)
+    }
+    setShowCanvasDrawer(false)
+  }
 }

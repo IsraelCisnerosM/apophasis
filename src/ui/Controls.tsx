@@ -1,4 +1,4 @@
-import { FlaskConical, Languages, Mic, MicOff, Sparkles, Zap } from 'lucide-react'
+import { FlaskConical, Languages, Mic, MicOff, Paintbrush, Sparkles, Zap } from 'lucide-react'
 import { DEMO_LABELS, DEMO_PRESETS, type DemoPreset, dispatchDemoSurface } from '@/a2ui/demoSurface'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,7 @@ export function Controls() {
   const language = useStore((s) => s.language)
   const toggleLanguage = useStore((s) => s.toggleLanguage)
   const registerSurface = useStore((s) => s.registerSurface)
+  const setShowCanvasDrawer = useStore((s) => s.setShowCanvasDrawer)
   const { start, stop, error } = useVoiceSession()
   const { t } = useT()
 
@@ -91,6 +92,14 @@ export function Controls() {
       >
         <Languages className="size-3" />
         {LANGUAGE_LABEL[language]}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setShowCanvasDrawer(true)}
+        title="Draw for me"
+      >
+        <Paintbrush className="size-3" />
+        Draw
       </Button>
       {error && <span className="ml-1 max-w-[280px] text-destructive text-xs">{error}</span>}
     </div>

@@ -19,6 +19,8 @@
   },
   "dependencies": {
     "@a2ui/react": "^0.9.1",
+    "@copilotkit/react-core": "^1.57.1",
+    "@copilotkit/react-ui": "^1.57.1",
     "@google-cloud/storage": "^7.18.0",
     "@google/genai": "^2.0.0",
     "@hookform/resolvers": "^5.2.2",

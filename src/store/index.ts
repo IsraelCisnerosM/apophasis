@@ -167,6 +167,8 @@ interface Store {
   lastSearchResults: SearchResult[] | null
   lastSearchQuery: string | null
   searchPending: boolean
+  // Canvas drawer for drawing assistance
+  showCanvasDrawer: boolean
 
   setPhase(phase: Phase): void
   setMicLevel(level: number): void
@@ -191,6 +193,7 @@ interface Store {
   setSearchPending(pending: boolean): void
   setSearchResults(query: string | null, results: SearchResult[] | null): void
   clearSearchResults(): void
+  setShowCanvasDrawer(show: boolean): void
 }
 
 export const useStore = create<Store>((set, get) => ({
@@ -260,6 +263,17 @@ export const useStore = create<Store>((set, get) => ({
   chunksSent: 0,
   appendInputTranscript: (delta) =>
     set((s) => {
+      const lowerDelta = delta.toLowerCase()
+      if (
+        lowerDelta.includes('no me estás entendiendo') ||
+        lowerDelta.includes('no me entiendes') ||
+        lowerDelta.includes('quiero dibujarte mejor') ||
+        lowerDelta.includes('dibujarte') ||
+        lowerDelta.includes('dibujar')
+      ) {
+        // Activar el drawer de dibujo
+        s.setShowCanvasDrawer(true)
+      }
       if (s.lastSpeaker !== 'user') {
         // New user turn — also clear Lucy's previous text so the top card
         // doesn't look like she's repeating herself. The sidebar keeps the
@@ -355,4 +369,6 @@ export const useStore = create<Store>((set, get) => ({
       ].slice(-200),
     })),
   clearEvents: () => set({ events: [] }),
+  showCanvasDrawer: false,
+  setShowCanvasDrawer: (show) => set({ showCanvasDrawer: show }),
 }))
