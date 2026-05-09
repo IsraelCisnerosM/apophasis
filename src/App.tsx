@@ -88,7 +88,7 @@ export default function App() {
           onInterpret={handleInterpret}
         />
       )}
-    </>
+    </CopilotKit>
   )
 
   async function handleInterpret(imageData: string) {
