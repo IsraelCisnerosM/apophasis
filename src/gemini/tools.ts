@@ -72,6 +72,25 @@ const UI_TOOLS: FunctionDeclaration[] = [
     },
   },
   {
+    name: 'draw_canvas',
+    description:
+      'Open an interactive drawing canvas for the user to sketch something. ' +
+      'Once the user finishes drawing and submits, the sketch will be interpreted ' +
+      'using vision analysis to generate a detailed description and then search/render ' +
+      'what they drew. Use this when the user clicks "Draw for me" or wants to ' +
+      'sketch something they cannot describe verbally.',
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        mode: {
+          type: Type.STRING,
+          description: 'Canvas mode: "open" to open the canvas, "close" to dismiss it.',
+        },
+      },
+      required: ['mode'],
+    },
+  },
+  {
     name: 'respond_in_voice',
     description:
       'Use ONLY for plain conversational replies that do not require any UI or ' +

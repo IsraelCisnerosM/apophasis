@@ -168,6 +168,8 @@ interface Store {
   lastSearchResults: SearchResult[] | null
   lastSearchQuery: string | null
   searchPending: boolean
+  // Drawing canvas state
+  drawingOpen: boolean
 
   setPhase(phase: Phase): void
   setMicLevel(level: number): void
@@ -193,6 +195,7 @@ interface Store {
   setSearchPending(pending: boolean): void
   setSearchResults(query: string | null, results: SearchResult[] | null): void
   clearSearchResults(): void
+  setDrawingOpen(open: boolean): void
 }
 
 export const useStore = create<Store>((set, get) => ({
@@ -295,6 +298,8 @@ export const useStore = create<Store>((set, get) => ({
   lastSearchQuery: null,
   searchPending: false,
   setSearchPending: (pending) => set({ searchPending: pending }),
+  drawingOpen: false,
+  setDrawingOpen: (open) => set({ drawingOpen: open }),
   setSearchResults: (query, results) =>
     set((s) => {
       const next: Partial<Store> = {

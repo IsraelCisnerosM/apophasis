@@ -1,4 +1,4 @@
-import { FlaskConical, Languages, Mic, MicOff, Sparkles, Zap } from 'lucide-react'
+import { FlaskConical, Languages, Mic, MicOff, Sparkles, Zap, Pencil } from 'lucide-react'
 import { DEMO_LABELS, DEMO_PRESETS, type DemoPreset, dispatchDemoSurface } from '@/a2ui/demoSurface'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,6 +20,7 @@ export function Controls() {
   const language = useStore((s) => s.language)
   const toggleLanguage = useStore((s) => s.toggleLanguage)
   const registerSurface = useStore((s) => s.registerSurface)
+  const setDrawingOpen = useStore((s) => s.setDrawingOpen)
   const { start, stop, toggleMute, error } = useVoiceSession()
   const { t } = useT()
 
@@ -80,6 +81,15 @@ export function Controls() {
           ))}
         </PopoverContent>
       </Popover>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setDrawingOpen(true)}
+        title="Draw something for Lucy to understand"
+      >
+        <Pencil className="size-3" />
+        Draw
+      </Button>
       <Button
         variant={lite ? 'secondary' : 'ghost'}
         size="sm"

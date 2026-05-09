@@ -2,7 +2,7 @@ import { OrbitControls } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Bloom, ChromaticAberration, EffectComposer } from '@react-three/postprocessing'
 import { BlendFunction } from 'postprocessing'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import * as THREE from 'three'
 import { dispatchDemoSurface } from '@/a2ui/demoSurface'
 import { Backdrop } from '@/scene/Backdrop'
@@ -10,6 +10,7 @@ import { Blob } from '@/scene/Blob'
 import { useStore } from '@/store'
 import { Controls } from '@/ui/Controls'
 import { ConversationSidebar } from '@/ui/ConversationSidebar'
+import { DrawPanel } from '@/ui/DrawPanel'
 import { ResultGallery } from '@/ui/ResultGallery'
 import { SurfacePanel } from '@/ui/SurfacePanel'
 import { Transcript } from '@/ui/Transcript'
@@ -18,6 +19,9 @@ export default function App() {
   const lite = useStore((s) => s.lite)
   const toggleLite = useStore((s) => s.toggleLite)
   const registerSurface = useStore((s) => s.registerSurface)
+  const drawingOpen = useStore((s) => s.drawingOpen)
+  const setDrawingOpen = useStore((s) => s.setDrawingOpen)
+  const addEvent = useStore((s) => s.addEvent)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -43,6 +47,21 @@ export default function App() {
       registerSurface(id)
     }
   }, [registerSurface])
+
+  const handleDrawSubmit = useCallback(
+    (imageData: string, description: string) => {
+      setDrawingOpen(false)
+      addEvent({
+        kind: 'note',
+        title: 'Drawing submitted',
+        detail: description || 'User drew something',
+        data: { imageData, description },
+      })
+      // TODO: Send to Gemini Vision API to interpret the drawing
+      // Then call render_surface or search based on the interpretation
+    },
+    [setDrawingOpen, addEvent],
+  )
 
   return (
     <>
@@ -78,6 +97,7 @@ export default function App() {
       <ResultGallery />
       <SurfacePanel />
       <Controls />
+      {drawingOpen && <DrawPanel onClose={() => setDrawingOpen(false)} onSubmit={handleDrawSubmit} />}
     </>
   )
 }
